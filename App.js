@@ -7,7 +7,7 @@ import { initializeApp } from "firebase/app";
 import {getFirestore, collection, onSnapshot, addDoc, query, where, initializeFirestore } from "firebase/firestore";
 // import { getAnalytics } from "firebase/analytics";
 
-import {getAuth} from 'firebase/auth';
+import {getAuth, onAuthStateChanged, signInAnonymously} from 'firebase/auth';
 
 
 import {decode, encode} from 'base-64'
@@ -39,6 +39,8 @@ const db= initializeFirestore(app, {
 
 export default function App() {
   const [lists, setLists] = useState([]);
+  const [uid, setUid]= useState();
+  const [loggedInText, setLoggedInText]= useState('Please wait. You’re being authenticated');
 
 // Create reference to the shopping list collection on firestore
   const shoppingListRef = collection(db, 'shoppinglists');
@@ -55,15 +57,37 @@ export default function App() {
     setLists(lists);
   }
 
+  const addList =() => {
+    addDoc(shoppingListRef,{
+      name: 'TestList',
+      items: ['eggs', 'pasta', 'veggies'],
+      uid: uid
+    });
+  }
+
 
   useEffect(() => {
+
+    const auth = getAuth();
     
+     const authUnsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        await signInAnonymously(auth);
+      }
+
+      // Set states for user uid and logged in text
+      setUid(user.uid);
+      setLoggedInText('Hello there!');
+
+
       // Create a query to get the shopping list belonging to the user
-      const userListQuery = query(shoppingListRef);
+      const userListQuery = query(shoppingListRef, where("uid", "==", uid));
       unsubscribe = onSnapshot(userListQuery, onCollectionUpdate);
 
-    
+    });
+
     return () => {
+      authUnsubscribe();
       
     }
   }, []);
@@ -73,13 +97,14 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <Text>{loggedInText}</Text>
       <FlatList
         data={lists}
         renderItem={({ item }) =>
           <Text style={styles.item}>{item.name}: {item.items}</Text>}
       />
-      
-    </View>
+      <Button onPress={addList} title='Add list' />
+    </View> 
   );
 }
 
