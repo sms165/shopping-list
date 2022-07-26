@@ -4,10 +4,17 @@ import { StyleSheet, Text, FlatList, Button, View } from 'react-native';
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 
-import {getFirestore, collection, onSnapshot, addDoc, query, where } from "firebase/firestore";
+import {getFirestore, collection, onSnapshot, addDoc, query, where, initializeFirestore } from "firebase/firestore";
 // import { getAnalytics } from "firebase/analytics";
 
 import {getAuth} from 'firebase/auth';
+
+
+import {decode, encode} from 'base-64'
+
+if (!global.btoa) {  global.btoa = encode }
+
+if (!global.atob) { global.atob = decode }
 
 const firebaseConfig ={
   apiKey: "AIzaSyDqZv7cGkkawuF4Hy2uXhKCY0OD384uQY0",
@@ -21,9 +28,13 @@ const firebaseConfig ={
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const db= initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
 
-const db = getFirestore(app);
+//const db = getFirestore(app);
 // const analytics = getAnalytics(app);
+
 
 
 export default function App() {
