@@ -73,21 +73,23 @@ export default function App() {
      const authUnsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         await signInAnonymously(auth);
-      }
+      
+    
 
       // Set states for user uid and logged in text
       setUid(user.uid);
       setLoggedInText('Hello there!');
-
+    
 
       // Create a query to get the shopping list belonging to the user
       const userListQuery = query(shoppingListRef, where("uid", "==", uid));
-      unsubscribe = onSnapshot(userListQuery, onCollectionUpdate);
-
+     const unsubscribe= onSnapshot(userListQuery, onCollectionUpdate);
+      }
     });
 
     return () => {
       authUnsubscribe();
+      
       
     }
   }, []);
