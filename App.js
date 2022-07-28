@@ -73,7 +73,7 @@ export default function App() {
      const authUnsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         await signInAnonymously(auth);
-      
+      }
     
 
       // Set states for user uid and logged in text
@@ -84,7 +84,7 @@ export default function App() {
       // Create a query to get the shopping list belonging to the user
       const userListQuery = query(shoppingListRef, where("uid", "==", uid));
      const unsubscribe= onSnapshot(userListQuery, onCollectionUpdate);
-      }
+      
     });
 
     return () => {
